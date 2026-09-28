@@ -1,0 +1,70 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #0f172a;
+  color: #f8fafc;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  overflow: hidden;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Leaflet dark theme & isolation: keep z-index strictly beneath UI modals and headers */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  background-color: #0f172a !important;
+  z-index: 1 !important;
+}
+
+/* Clear Leaflet's default white box on custom div icons */
+.leaflet-div-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Ensure modal overlays always stay on the topmost layer */
+.modal-overlay {
+  z-index: 99999 !important;
+}
+
+/* Fix Leaflet popup dark mode */
+.leaflet-popup-content-wrapper {
+  background: #1e293b !important;
+  color: #f8fafc !important;
+  border: 1px solid #334155;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+}
+
+.leaflet-popup-tip {
+  background: #1e293b !important;
+  border: 1px solid #334155;
+}
+
+/* Radar pulse animation for critical incident markers */
+@keyframes radar-pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.4; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.pulse-critical {
+  animation: radar-pulse 1.8s infinite ease-in-out;
+}

@@ -1,0 +1,17 @@
+*/node_modules/
+npm-debug-log*
+yard-debug.log*
+yearn-error.log*
+pnpm-debug.log*
+
+.env
+.env.*
+*.env
+!.env.example
+
+dist/
+dsit-ssr/
+build/
+*.local
+!server/uploads/.gitkeep
+
