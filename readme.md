@@ -33,7 +33,19 @@ Whenever an accident or road blockage happens, reporting it to authorities usual
 
 ---
 
-## 🚀 How to Run Locally
+## 🐳 Quick Start with Docker (Recommended)
+
+Run the entire ecosystem (MongoDB + Express Backend + React Frontend) with a single command:
+
+```bash
+docker compose up --build -d
+```
+- **Frontend App:** http://localhost:80
+- **Backend Health API:** http://localhost:5000/api/health
+
+---
+
+## 🚀 How to Run Locally (Without Docker)
 
 ### 1. Clone the repository
 ```bash
