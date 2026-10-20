@@ -102,9 +102,9 @@ export default function App() {
   const activeCount = incidents.filter((i) => i.status !== 'RESOLVED').length;
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-slate-950 text-slate-100 overflow-hidden font-sans">
-      {/* Human, Clean SaaS Header */}
-      <header className="h-13 bg-slate-900 border-b border-slate-800 px-3.5 sm:px-6 flex items-center justify-between z-30 flex-shrink-0">
+    <div className="fixed inset-0 w-full h-[100dvh] flex flex-col bg-slate-950 text-slate-100 overflow-hidden font-sans">
+      {/* Top Header - Always visible, never pushed off-screen */}
+      <header className="h-14 bg-slate-900 border-b border-slate-800 px-3.5 sm:px-6 flex items-center justify-between z-40 flex-shrink-0">
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
           <div className="w-7 h-7 rounded-md bg-blue-600 flex items-center justify-center font-bold text-xs text-white shadow-sm flex-shrink-0">
             ST
@@ -146,8 +146,8 @@ export default function App() {
         </div>
       </header>
 
-      {/* Main Split Screen */}
-      <main className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+      {/* Main Body - Takes all space between header and bottom nav */}
+      <main className="flex-1 min-h-0 flex flex-col md:flex-row overflow-hidden relative">
         {/* Sidebar Container */}
         <div
           className={`${
@@ -200,37 +200,37 @@ export default function App() {
         </div>
       </main>
 
-      {/* Mobile Bottom Navigation Bar */}
-      <nav className="md:hidden bg-slate-900 border-t border-slate-800 p-1.5 flex items-center justify-around z-30 flex-shrink-0">
+      {/* Mobile Bottom Navigation Bar - Pinned strictly to viewport bottom */}
+      <nav className="md:hidden bg-slate-900 border-t border-slate-800 px-3 py-2 flex items-center justify-around z-40 flex-shrink-0" style={{ paddingBottom: 'max(0.6rem, env(safe-area-inset-bottom))' }}>
         <button
           onClick={() => setMobileView('map')}
-          className={`flex-1 flex flex-col items-center justify-center py-1.5 rounded-md text-xs font-medium transition ${
+          className={`flex-1 flex flex-col items-center justify-center py-1.5 rounded-md text-xs font-medium transition cursor-pointer active:scale-95 ${
             mobileView === 'map'
-              ? 'text-blue-400 bg-slate-800/80'
+              ? 'text-blue-400 bg-slate-800/80 shadow-sm'
               : 'text-slate-400 hover:text-slate-200'
           }`}
         >
-          <Map size={16} />
-          <span className="text-[10px] mt-0.5">Live Map</span>
+          <Map size={18} />
+          <span className="text-[11px] font-medium mt-0.5">Live Map</span>
         </button>
 
         <button
           onClick={() => setMobileView('list')}
-          className={`flex-1 flex flex-col items-center justify-center py-1.5 rounded-md text-xs font-medium transition relative ${
+          className={`flex-1 flex flex-col items-center justify-center py-1.5 rounded-md text-xs font-medium transition cursor-pointer active:scale-95 relative ${
             mobileView === 'list'
-              ? 'text-blue-400 bg-slate-800/80'
+              ? 'text-blue-400 bg-slate-800/80 shadow-sm'
               : 'text-slate-400 hover:text-slate-200'
           }`}
         >
           <div className="relative">
-            <ListFilter size={16} />
+            <ListFilter size={18} />
             {activeCount > 0 && (
               <span className="absolute -top-1 -right-2 bg-blue-500 text-white text-[9px] font-bold px-1 rounded-full">
                 {activeCount}
               </span>
             )}
           </div>
-          <span className="text-[10px] mt-0.5">Incidents</span>
+          <span className="text-[11px] font-medium mt-0.5">Incidents</span>
         </button>
       </nav>
 
