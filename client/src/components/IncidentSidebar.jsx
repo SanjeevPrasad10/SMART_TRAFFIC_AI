@@ -17,20 +17,20 @@ export default function IncidentSidebar({
   });
 
   return (
-    <aside className="w-80 md:w-96 h-full bg-slate-900 border-r border-slate-800 flex flex-col z-20 flex-shrink-0 shadow-xl">
+    <aside className="w-full h-full bg-slate-900 border-r border-slate-800 flex flex-col z-20 flex-shrink-0 shadow-xl">
       {/* Top Filter Bar */}
-      <div className="p-4 border-b border-slate-800 bg-slate-900/80">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="font-bold text-slate-100 text-sm tracking-wide flex items-center gap-2">
+      <div className="p-3 sm:p-4 border-b border-slate-800 bg-slate-900/80 flex-shrink-0">
+        <div className="flex items-center justify-between mb-2.5">
+          <h2 className="font-bold text-slate-100 text-xs sm:text-sm tracking-wide flex items-center gap-2">
             <span>🚨 Active Incidents</span>
-            <span className="bg-red-500/20 text-red-400 text-xs px-2 py-0.5 rounded-full font-mono">
+            <span className="bg-red-500/20 text-red-400 text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-mono">
               {incidents.filter(i => i.status !== 'RESOLVED').length}
             </span>
           </h2>
         </div>
 
         {/* Filter Pills */}
-        <div className="flex gap-1.5 text-xs">
+        <div className="flex gap-1.5 text-xs overflow-x-auto pb-1 no-scrollbar">
           {[
             { id: 'ALL', label: 'All' },
             { id: 'ACTIVE', label: 'Active' },
@@ -40,7 +40,7 @@ export default function IncidentSidebar({
             <button
               key={tab.id}
               onClick={() => setFilter(tab.id)}
-              className={`px-2.5 py-1 rounded-md font-medium transition ${
+              className={`px-2.5 py-1 rounded-md text-[11px] font-medium whitespace-nowrap transition cursor-pointer ${
                 filter === tab.id
                   ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
                   : 'bg-slate-800/60 text-slate-400 hover:text-slate-200'
@@ -67,7 +67,7 @@ export default function IncidentSidebar({
               <div
                 key={incident._id}
                 onClick={() => onSelectIncident(incident)}
-                className={`p-3 rounded-lg border cursor-pointer transition ${
+                className={`p-3 rounded-lg border cursor-pointer transition active:scale-[0.99] ${
                   isSelected
                     ? 'bg-slate-800 border-cyan-500/60 shadow-lg shadow-cyan-500/5'
                     : 'bg-slate-800/40 border-slate-800 hover:border-slate-700 hover:bg-slate-800/80'
@@ -75,11 +75,11 @@ export default function IncidentSidebar({
               >
                 {/* Header: Title & Severity */}
                 <div className="flex items-start justify-between gap-2 mb-1.5">
-                  <h3 className="font-semibold text-xs text-slate-100 line-clamp-1 flex-1">
+                  <h3 className="font-semibold text-xs sm:text-sm text-slate-100 line-clamp-1 flex-1">
                     {incident.title}
                   </h3>
                   <span
-                    className={`text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wide ${
+                    className={`text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wide flex-shrink-0 ${
                       incident.severity === 'CRITICAL'
                         ? 'bg-red-500/20 text-red-400 border border-red-500/30'
                         : incident.severity === 'HIGH'
@@ -93,9 +93,8 @@ export default function IncidentSidebar({
                   </span>
                 </div>
 
-                
                 {incident.aiAnalysis?.summary && (
-                  <p className="text-[11px] text-slate-400 line-clamp-2 mb-2">
+                  <p className="text-[11px] text-slate-400 line-clamp-2 mb-2 leading-relaxed">
                     {incident.aiAnalysis.summary}
                   </p>
                 )}
@@ -114,7 +113,7 @@ export default function IncidentSidebar({
                           e.stopPropagation();
                           onUpdateStatus(incident._id, 'RESOLVED');
                         }}
-                        className="px-2 py-0.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 rounded font-medium transition"
+                        className="px-2.5 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 rounded font-medium transition cursor-pointer text-[10px]"
                       >
                         Resolve
                       </button>
