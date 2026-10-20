@@ -1,12 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { X, Upload, MapPin, Camera, AlertCircle, Loader2, CheckCircle2 } from 'lucide-react';
+import { X, Upload, MapPin, Loader2, CheckCircle2 } from 'lucide-react';
+
+const formatCoord = (val) => {
+  if (val === undefined || val === null || val === '') return '';
+  const num = Number(val);
+  return isNaN(num) ? '' : num.toFixed(6);
+};
 
 export default function ReportModal({ isOpen, onClose, onIncidentCreated, initialLocation }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [latitude, setLatitude] = useState(initialLocation?.lat ? initialLocation.lat.toFixed(6) : '');
-  const [longitude, setLongitude] = useState(initialLocation?.lng ? initialLocation.lng.toFixed(6) : '');
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
   const [address, setAddress] = useState('');
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -14,10 +20,10 @@ export default function ReportModal({ isOpen, onClose, onIncidentCreated, initia
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (initialLocation?.lat && initialLocation?.lng) {
-      setLatitude(initialLocation.lat.toFixed(6));
-      setLongitude(initialLocation.lng.toFixed(6));
+      setLatitude(formatCoord(initialLocation.lat));
+      setLongitude(formatCoord(initialLocation.lng));
     }
   }, [initialLocation]);
 
@@ -92,109 +98,106 @@ export default function ReportModal({ isOpen, onClose, onIncidentCreated, initia
       }
     } catch (err) {
       console.error('Submission error:', err);
-      setError(err.response?.data?.message || 'Failed to submit incident. Please verify backend is running.');
+      setError(err.response?.data?.message || 'Failed to submit incident. Please check server connection.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="modal-overlay fixed inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm z-[9999]">
+    <div className="modal-overlay fixed inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/75 backdrop-blur-sm z-[9999]">
       <div className="bg-slate-900 border border-slate-800 rounded-t-2xl sm:rounded-xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-800 bg-slate-900/50 flex-shrink-0">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-red-500/10 text-red-400 rounded-lg flex-shrink-0">
-              <Camera size={18} />
-            </div>
-            <div>
-              <h3 className="font-bold text-slate-100 text-sm sm:text-base">Report Traffic Incident</h3>
-              <p className="text-[10px] sm:text-xs text-slate-400">Gemini AI will automatically triage & estimate severity</p>
-            </div>
+        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-slate-800 bg-slate-900/90 flex-shrink-0">
+          <div>
+            <h3 className="font-semibold text-slate-100 text-sm sm:text-base">Report Incident</h3>
+            <p className="text-xs text-slate-400 mt-0.5">Submit location and details to alert transit authorities</p>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-200 p-1.5 rounded-lg cursor-pointer">
+          <button
+            onClick={onClose}
+            className="text-slate-400 hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-800 transition cursor-pointer"
+          >
             <X size={18} />
           </button>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto space-y-3.5 flex-1">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1">
           {error && (
-            <div className="p-3 bg-red-500/10 border border-red-500/30 text-red-400 text-xs rounded-lg flex items-center gap-2">
-              <AlertCircle size={16} className="flex-shrink-0" />
-              <span>{error}</span>
+            <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-lg">
+              {error}
             </div>
           )}
 
           {/* Title */}
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Incident Headline *</label>
+            <label className="block text-xs font-medium text-slate-300 mb-1.5">Incident Title *</label>
             <input
               type="text"
               required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. 3-car collision blocking highway"
-              className="w-full bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+              placeholder="e.g. Broken traffic signal, blocked lane, accident"
+              className="w-full bg-slate-800/60 border border-slate-700/80 rounded-lg px-3 py-2 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Details & Scene Description *</label>
+            <label className="block text-xs font-medium text-slate-300 mb-1.5">Description *</label>
             <textarea
               required
               rows={2}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe vehicles involved, smoke, or roadblocks..."
-              className="w-full bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+              placeholder="Provide context on severity, traffic congestion, or hazard..."
+              className="w-full bg-slate-800/60 border border-slate-700/80 rounded-lg px-3 py-2 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
             />
           </div>
 
           {/* GPS Coordinates */}
           <div className="grid grid-cols-2 gap-2.5">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Latitude *</label>
+              <label className="block text-xs font-medium text-slate-300 mb-1.5">Latitude *</label>
               <input
                 type="number"
                 step="any"
                 required
                 value={latitude}
                 onChange={(e) => setLatitude(e.target.value)}
-                placeholder="29.8543"
-                className="w-full bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500 font-mono"
+                placeholder="29.854300"
+                className="w-full bg-slate-800/60 border border-slate-700/80 rounded-lg px-3 py-2 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 font-mono transition"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Longitude *</label>
+              <label className="block text-xs font-medium text-slate-300 mb-1.5">Longitude *</label>
               <input
                 type="number"
                 step="any"
                 required
                 value={longitude}
                 onChange={(e) => setLongitude(e.target.value)}
-                placeholder="77.8880"
-                className="w-full bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500 font-mono"
+                placeholder="77.888000"
+                className="w-full bg-slate-800/60 border border-slate-700/80 rounded-lg px-3 py-2 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 font-mono transition"
               />
             </div>
           </div>
 
-          {/* Detect Location Button */}
+          {/* Auto-detect button */}
           <button
             type="button"
             onClick={handleDetectLocation}
             disabled={isDetectingLocation}
-            className="w-full py-2 px-3 bg-slate-800 hover:bg-slate-700 text-cyan-400 text-xs font-semibold rounded-lg border border-slate-700 flex items-center justify-center gap-2 transition cursor-pointer active:scale-[0.98]"
+            className="w-full py-2 px-3 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-slate-300 text-xs font-medium rounded-lg flex items-center justify-center gap-2 transition cursor-pointer active:scale-[0.99]"
           >
-            {isDetectingLocation ? <Loader2 size={14} className="animate-spin" /> : <MapPin size={14} />}
-            <span>{isDetectingLocation ? 'Querying Device GPS...' : '📍 Auto-Detect My Live GPS Location'}</span>
+            {isDetectingLocation ? <Loader2 size={13} className="animate-spin text-blue-400" /> : <MapPin size={13} className="text-blue-400" />}
+            <span>{isDetectingLocation ? 'Getting device GPS...' : 'Use current location'}</span>
           </button>
 
           {/* Photo Upload */}
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Incident Photo (For Gemini Vision)</label>
-            <div className="border-2 border-dashed border-slate-700 hover:border-slate-600 rounded-lg p-3 text-center cursor-pointer transition relative bg-slate-800/40">
+            <label className="block text-xs font-medium text-slate-300 mb-1.5">Photo (Optional)</label>
+            <div className="border border-dashed border-slate-700 hover:border-slate-600 rounded-lg p-3.5 text-center cursor-pointer transition relative bg-slate-800/30">
               <input
                 type="file"
                 accept="image/*"
@@ -203,36 +206,33 @@ export default function ReportModal({ isOpen, onClose, onIncidentCreated, initia
               />
               {imagePreview ? (
                 <div className="relative">
-                  <img src={imagePreview} alt="Preview" className="h-28 mx-auto rounded object-cover" />
-                  <span className="text-[10px] text-cyan-400 mt-1 block">Tap to change photo</span>
+                  <img src={imagePreview} alt="Preview" className="h-28 mx-auto rounded-md object-cover" />
+                  <span className="text-[11px] text-blue-400 mt-1.5 block">Tap to change image</span>
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-1 text-slate-400">
-                  <Upload size={18} className="text-slate-500" />
-                  <span className="text-xs font-medium">Upload or take a photo</span>
-                  <span className="text-[9px] text-slate-500">JPG, PNG up to 5MB</span>
+                  <Upload size={16} className="text-slate-500" />
+                  <span className="text-xs">Upload or take a photo</span>
+                  <span className="text-[10px] text-slate-500">JPG, PNG up to 5MB</span>
                 </div>
               )}
             </div>
           </div>
 
           {/* Submit */}
-          <div className="pt-1 pb-2">
+          <div className="pt-2 pb-1">
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-2.5 px-4 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-semibold text-xs sm:text-sm rounded-lg shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 transition disabled:opacity-50 cursor-pointer active:scale-[0.98]"
+              className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs sm:text-sm rounded-lg shadow transition disabled:opacity-50 cursor-pointer active:scale-[0.99] flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 size={16} className="animate-spin" />
-                  <span>🤖 Gemini Vision Diagnosing...</span>
+                  <Loader2 size={15} className="animate-spin" />
+                  <span>Submitting report...</span>
                 </>
               ) : (
-                <>
-                  <CheckCircle2 size={16} />
-                  <span>Submit Live Incident Report</span>
-                </>
+                <span>Submit Report</span>
               )}
             </button>
           </div>

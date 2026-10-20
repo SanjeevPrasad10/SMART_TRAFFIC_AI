@@ -1,58 +1,50 @@
 import React from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
-import { AlertTriangle, Clock, MapPin, CheckCircle2, Plus } from 'lucide-react';
+import { Clock, MapPin, CheckCircle2, Plus } from 'lucide-react';
 
-// Custom SVG marker for saved incidents
+// Custom clean marker for incidents
 const createCustomMarker = (severity, status) => {
-  let color = '#38bdf8'; 
-  let pulse = false;
+  let color = '#3b82f6';
 
   if (status === 'RESOLVED') {
-    color = '#22c55e';
+    color = '#10b981';
   } else if (severity === 'CRITICAL') {
     color = '#ef4444';
-    pulse = true;
   } else if (severity === 'HIGH') {
     color = '#f97316';
   } else if (severity === 'MEDIUM') {
-    color = '#eab308'; 
+    color = '#f59e0b';
   }
 
   const svgIcon = `
-    <div style="position: relative; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
-      ${pulse ? `<div style="position: absolute; width: 36px; height: 36px; border-radius: 50%; background-color: ${color}; opacity: 0.5;" class="pulse-critical"></div>` : ''}
-      <div style="width: 26px; height: 26px; border-radius: 50%; background-color: #0f172a; border: 2.5px solid ${color}; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0,0,0,0.6);">
-        <div style="width: 10px; height: 10px; border-radius: 50%; background-color: ${color};"></div>
-      </div>
+    <div style="width: 22px; height: 22px; border-radius: 50%; background-color: #0f172a; border: 2px solid ${color}; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.4);">
+      <div style="width: 7px; height: 7px; border-radius: 50%; background-color: ${color};"></div>
     </div>
   `;
 
   return L.divIcon({
     html: svgIcon,
     className: 'custom-leaflet-marker',
-    iconSize: [36, 36],
-    iconAnchor: [18, 18],
-    popupAnchor: [0, -18],
+    iconSize: [22, 22],
+    iconAnchor: [11, 11],
+    popupAnchor: [0, -11],
   });
 };
 
-// Custom SVG markr hai
+// Clean pin for user map click
 const createDraftMarker = () => {
   const svg = `
-    <div style="position: relative; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;">
-      <div style="position: absolute; width: 42px; height: 42px; border-radius: 50%; background-color: #ef4444;" class="pulse-critical"></div>
-      <div style="width: 32px; height: 32px; border-radius: 50%; background-color: #ef4444; border: 3px solid #ffffff; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(239,68,68,0.6); cursor: pointer;">
-        <span style="color: white; font-weight: 900; font-size: 18px; line-height: 1;">+</span>
-      </div>
+    <div style="width: 26px; height: 26px; border-radius: 50%; background-color: #2563eb; border: 2.5px solid #ffffff; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(37,99,235,0.4); cursor: pointer;">
+      <div style="width: 6px; height: 6px; border-radius: 50%; background-color: #ffffff;"></div>
     </div>
   `;
   return L.divIcon({
     html: svg,
     className: 'custom-leaflet-marker',
-    iconSize: [42, 42],
-    iconAnchor: [21, 21],
-    popupAnchor: [0, -21]
+    iconSize: [26, 26],
+    iconAnchor: [13, 13],
+    popupAnchor: [0, -13]
   });
 };
 
@@ -60,20 +52,20 @@ const MapUpdater = ({ center, zoom }) => {
   const map = useMap();
   React.useEffect(() => {
     if (center && center[0] && center[1]) {
-      map.flyTo(center, zoom || 14, { duration: 1.2 });
+      map.flyTo(center, zoom || 14, { duration: 1 });
     }
   }, [center, zoom, map]);
   return null;
 };
 
-// Map click detector: allow karega pin point karna whenver koi ek particular location ko click karega
+// Map click detector
 const MapClickDetector = ({ onMapClick }) => {
   useMapEvents({
     click(e) {
       if (onMapClick) {
         onMapClick({
-          lat: e.latlng.lat.toFixed(6),
-          lng: e.latlng.lng.toFixed(6)
+          lat: e.latlng.lat,
+          lng: e.latlng.lng
         });
       }
     }
@@ -90,7 +82,6 @@ export default function IncidentMap({
   onMapClick,
   onOpenReportModal
 }) {
-
   const defaultCenter = [29.8543, 77.8880];
   const activeCenter = selectedIncident?.location?.coordinates
     ? [selectedIncident.location.coordinates[1], selectedIncident.location.coordinates[0]]
@@ -100,10 +91,10 @@ export default function IncidentMap({
 
   return (
     <div className="w-full h-full relative">
-   
-      <div className="absolute top-4 right-4 z-[400] bg-slate-900/95 backdrop-blur-md border border-cyan-500/40 text-xs px-3.5 py-2 rounded-lg text-slate-200 shadow-2xl flex items-center gap-2 pointer-events-none">
-        <MapPin size={15} className="text-cyan-400 animate-bounce" />
-        <span>Click anywhere on the map to drop a pin</span>
+      {/* Subtle Map Instructions */}
+      <div className="absolute top-3 right-3 z-[400] bg-slate-900/90 backdrop-blur-sm border border-slate-800 text-xs px-3 py-1.5 rounded-md text-slate-300 shadow-md flex items-center gap-1.5 pointer-events-none">
+        <MapPin size={12} className="text-blue-400" />
+        <span>Click map to report location</span>
       </div>
 
       <MapContainer
@@ -115,7 +106,6 @@ export default function IncidentMap({
         <MapUpdater center={activeCenter} zoom={selectedIncident || draftLocation ? 15 : 13} />
         <MapClickDetector onMapClick={onMapClick} />
 
-        
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -129,10 +119,10 @@ export default function IncidentMap({
             icon={createDraftMarker()}
           >
             <Popup autoPan={true}>
-              <div className="p-2 text-center min-w-[200px]">
-                <p className="text-xs font-bold text-slate-100 mb-1">📍 Pinpoint Selected</p>
-                <p className="text-[11px] font-mono text-cyan-400 bg-slate-900/80 px-2 py-1 rounded border border-slate-700 mb-2">
-                  {draftLocation.lat}, {draftLocation.lng}
+              <div className="p-1.5 text-center min-w-[180px]">
+                <p className="text-xs font-semibold text-slate-100 mb-1">Selected Location</p>
+                <p className="text-[11px] font-mono text-slate-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800 mb-2">
+                  {Number(draftLocation.lat).toFixed(4)}, {Number(draftLocation.lng).toFixed(4)}
                 </p>
                 <button
                   type="button"
@@ -144,10 +134,10 @@ export default function IncidentMap({
                     e.stopPropagation();
                     if (onOpenReportModal) onOpenReportModal();
                   }}
-                  className="w-full py-2 px-3 bg-red-600 hover:bg-red-500 text-white font-semibold text-xs rounded-lg transition flex items-center justify-center gap-1.5 shadow-lg shadow-red-600/30 cursor-pointer"
+                  className="w-full py-1.5 px-3 bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs rounded transition flex items-center justify-center gap-1 cursor-pointer"
                 >
-                  <Plus size={14} />
-                  <span>Report Incident Here</span>
+                  <Plus size={13} />
+                  <span>Report at this location</span>
                 </button>
               </div>
             </Popup>
@@ -169,9 +159,9 @@ export default function IncidentMap({
               }}
             >
               <Popup className="incident-popup">
-                <div className="p-1 max-w-[280px]">
+                <div className="p-1 max-w-[270px]">
                   {incident.imageUrl && (
-                    <div className="w-full h-32 mb-2 rounded overflow-hidden bg-slate-900 border border-slate-700">
+                    <div className="w-full h-32 mb-2 rounded overflow-hidden bg-slate-900 border border-slate-800">
                       <img
                         src={`http://localhost:5000${incident.imageUrl}`}
                         alt={incident.title}
@@ -181,36 +171,38 @@ export default function IncidentMap({
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between gap-2 mb-1">
-                    <h4 className="font-bold text-sm text-slate-100 truncate">{incident.title}</h4>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                      incident.severity === 'CRITICAL' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
-                      incident.severity === 'HIGH' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' :
-                      'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
-                    }`}>
+                  <div className="flex items-center justify-between gap-1 mb-1">
+                    <h4 className="font-semibold text-xs text-slate-100 line-clamp-1">{incident.title}</h4>
+                    <span className="text-[10px] font-medium px-1.5 py-0.2 rounded bg-slate-800 border border-slate-700 text-slate-300">
                       {incident.severity}
                     </span>
                   </div>
 
-                  {incident.aiAnalysis?.summary && (
-                    <div className="bg-slate-900/80 p-2 rounded border border-slate-800 my-2">
-                      <div className="text-[10px] text-cyan-400 font-semibold flex items-center gap-1 mb-0.5">
-                        <span>🤖 Gemini Vision Diagnosis:</span>
-                      </div>
-                      <p className="text-[11px] text-slate-300 leading-tight">
-                        {incident.aiAnalysis.summary}
-                      </p>
-                    </div>
-                  )}
+                  <p className="text-[11px] text-slate-400 line-clamp-2 mb-2 leading-relaxed">
+                    {incident.description}
+                  </p>
 
-                  <div className="flex items-center justify-between text-[11px] text-slate-400 mt-2 pt-2 border-t border-slate-800">
-                    <span className="flex items-center gap-1">
-                      <Clock size={12} />
+                  <div className="flex items-center justify-between pt-1.5 border-t border-slate-800 text-[10px] text-slate-500">
+                    <span className="flex items-center gap-1 font-mono">
+                      <Clock size={11} />
                       {new Date(incident.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
-                    <span className="font-semibold text-slate-200">
-                      Status: <span className="text-cyan-400">{incident.status}</span>
-                    </span>
+
+                    {incident.status !== 'RESOLVED' ? (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (onStatusChange) onStatusChange(incident._id, 'RESOLVED');
+                        }}
+                        className="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded text-[10px] transition cursor-pointer"
+                      >
+                        Mark Resolved
+                      </button>
+                    ) : (
+                      <span className="text-emerald-400 font-medium flex items-center gap-1">
+                        <CheckCircle2 size={11} /> Resolved
+                      </span>
+                    )}
                   </div>
                 </div>
               </Popup>
@@ -221,4 +213,3 @@ export default function IncidentMap({
     </div>
   );
 }
-

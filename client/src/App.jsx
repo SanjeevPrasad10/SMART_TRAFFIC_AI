@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { io } from 'socket.io-client';
-import { Radio, Plus, Map, ListFilter, AlertCircle } from 'lucide-react';
+import { Plus, Map, ListFilter } from 'lucide-react';
 import IncidentMap from './components/IncidentMap';
 import IncidentSidebar from './components/IncidentSidebar';
 import ReportModal from './components/ReportModal';
@@ -38,19 +38,18 @@ export default function App() {
     });
 
     newSocket.on('connect', () => {
-      console.log('🔌 Connected to SmartTraffic WebSocket server:', newSocket.id);
+      console.log('Connected to incident stream:', newSocket.id);
       setIsConnected(true);
       newSocket.emit('join_authorities');
     });
 
     newSocket.on('disconnect', () => {
-      console.log('❌ Disconnected from WebSocket server');
+      console.log('Disconnected from stream');
       setIsConnected(false);
     });
 
     // Listen for new incidents pushed in real time
     newSocket.on('new_incident', (newIncident) => {
-      console.log('🚨 Real-time incident received:', newIncident);
       setIncidents((prev) => [newIncident, ...prev]);
       setSelectedIncident(newIncident);
       setDraftLocation(null);
@@ -104,53 +103,52 @@ export default function App() {
 
   return (
     <div className="h-screen w-screen flex flex-col bg-slate-950 text-slate-100 overflow-hidden font-sans">
-      {/* Top Navbar (Responsive) */}
-      <header className="h-14 bg-slate-900 border-b border-slate-800 px-3 sm:px-6 flex items-center justify-between z-30 flex-shrink-0">
+      {/* Human, Clean SaaS Header */}
+      <header className="h-13 bg-slate-900 border-b border-slate-800 px-3.5 sm:px-6 flex items-center justify-between z-30 flex-shrink-0">
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-red-600 to-amber-500 flex items-center justify-center shadow-lg shadow-red-500/20 flex-shrink-0">
-            <Radio size={18} className="text-white animate-pulse" />
+          <div className="w-7 h-7 rounded-md bg-blue-600 flex items-center justify-center font-bold text-xs text-white shadow-sm flex-shrink-0">
+            ST
           </div>
           <div className="min-w-0">
-            <h1 className="font-bold text-xs sm:text-sm tracking-tight text-slate-100 flex items-center gap-1.5 sm:gap-2">
-              <span className="truncate">SmartTraffic AI</span>
-              <span className="text-[9px] sm:text-[10px] bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 px-1.5 py-0.5 rounded font-mono hidden xs:inline-block">
-                Gemini 2.5
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-xs sm:text-sm text-slate-100 tracking-tight">SmartTraffic</span>
+              <span className="text-[10px] text-slate-400 border border-slate-700/80 bg-slate-800/60 px-1.5 py-0.2 rounded hidden xs:inline-block">
+                Live Dispatch
               </span>
-            </h1>
+            </div>
             <p className="text-[10px] text-slate-400 truncate hidden sm:block">
-              Autonomous Civic Dispatch & Geospatial Triage
+              Real-time civic traffic & road incident response
             </p>
           </div>
         </div>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-          {/* Socket Status Pill */}
+        <div className="flex items-center gap-2.5 sm:gap-3 flex-shrink-0">
+          {/* Status Indicator */}
           <div
-            className="flex items-center gap-1.5 bg-slate-800/80 px-2 sm:px-2.5 py-1 rounded-full border border-slate-700/80 text-xs"
-            title={isConnected ? 'WebSocket Live' : 'Disconnected'}
+            className="flex items-center gap-1.5 bg-slate-800/60 px-2 sm:px-2.5 py-1 rounded-full border border-slate-700/60 text-xs text-slate-300"
+            title={isConnected ? 'Live WebSocket connection' : 'Offline'}
           >
-            <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-400 animate-ping' : 'bg-red-400'}`} />
-            <span className="text-[10px] sm:text-[11px] font-medium text-slate-300 hidden sm:inline">
-              {isConnected ? 'WebSocket Live' : 'Offline'}
+            <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-emerald-400' : 'bg-rose-400'}`} />
+            <span className="text-[11px] font-medium hidden sm:inline">
+              {isConnected ? 'Live' : 'Offline'}
             </span>
           </div>
 
-          {/* Citizen Report Button (Navbar) */}
+          {/* New Report Button */}
           <button
             onClick={() => setIsReportModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white rounded-lg text-xs font-semibold shadow-md shadow-red-600/30 transition cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-md text-xs font-medium shadow-sm transition cursor-pointer active:scale-[0.98]"
           >
-            <Plus size={14} />
-            <span className="inline">Report</span>
-            <span className="hidden sm:inline">Incident</span>
+            <Plus size={13} />
+            <span>Report Incident</span>
           </button>
         </div>
       </header>
 
-      {/* Main Split Screen: Sidebar (desktop or mobile tab) + Leaflet Map */}
+      {/* Main Split Screen */}
       <main className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
-        {/* Sidebar Container (Full width on mobile if 'list' active, fixed side-column on desktop) */}
+        {/* Sidebar Container */}
         <div
           className={`${
             mobileView === 'list' ? 'flex flex-1 w-full' : 'hidden'
@@ -162,7 +160,7 @@ export default function App() {
             onSelectIncident={(inc) => {
               setSelectedIncident(inc);
               setDraftLocation(null);
-              setMobileView('map'); // Switch to map automatically on mobile when an incident is tapped
+              setMobileView('map');
             }}
             onUpdateStatus={handleUpdateStatus}
             filter={filter}
@@ -170,7 +168,7 @@ export default function App() {
           />
         </div>
 
-        {/* Map Container (Full screen on mobile if 'map' active, takes remaining space on desktop) */}
+        {/* Map Container */}
         <div
           className={`flex-1 h-full relative ${
             mobileView === 'map' ? 'block' : 'hidden md:block'
@@ -193,41 +191,41 @@ export default function App() {
           <div className="md:hidden absolute bottom-4 right-4 z-[500]">
             <button
               onClick={() => setIsReportModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-full text-xs font-bold shadow-xl shadow-red-600/40 border border-red-400/30 active:scale-95 transition"
+              className="flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-full text-xs font-medium shadow-lg border border-blue-400/20 active:scale-95 transition"
             >
-              <Plus size={18} />
+              <Plus size={15} />
               <span>Report Incident</span>
             </button>
           </div>
         </div>
       </main>
 
-      {/* Mobile Bottom Navigation Bar (Visible only on mobile screens < md) */}
-      <nav className="md:hidden bg-slate-900 border-t border-slate-800 p-2 flex items-center justify-around z-30 flex-shrink-0 safe-bottom">
+      {/* Mobile Bottom Navigation Bar */}
+      <nav className="md:hidden bg-slate-900 border-t border-slate-800 p-1.5 flex items-center justify-around z-30 flex-shrink-0">
         <button
           onClick={() => setMobileView('map')}
-          className={`flex-1 flex flex-col items-center justify-center py-1.5 rounded-lg text-xs font-semibold transition ${
+          className={`flex-1 flex flex-col items-center justify-center py-1.5 rounded-md text-xs font-medium transition ${
             mobileView === 'map'
-              ? 'text-cyan-400 bg-cyan-500/10'
+              ? 'text-blue-400 bg-slate-800/80'
               : 'text-slate-400 hover:text-slate-200'
           }`}
         >
-          <Map size={18} />
+          <Map size={16} />
           <span className="text-[10px] mt-0.5">Live Map</span>
         </button>
 
         <button
           onClick={() => setMobileView('list')}
-          className={`flex-1 flex flex-col items-center justify-center py-1.5 rounded-lg text-xs font-semibold transition relative ${
+          className={`flex-1 flex flex-col items-center justify-center py-1.5 rounded-md text-xs font-medium transition relative ${
             mobileView === 'list'
-              ? 'text-cyan-400 bg-cyan-500/10'
+              ? 'text-blue-400 bg-slate-800/80'
               : 'text-slate-400 hover:text-slate-200'
           }`}
         >
           <div className="relative">
-            <ListFilter size={18} />
+            <ListFilter size={16} />
             {activeCount > 0 && (
-              <span className="absolute -top-1 -right-2 bg-red-500 text-white text-[9px] font-bold px-1 rounded-full">
+              <span className="absolute -top-1 -right-2 bg-blue-500 text-white text-[9px] font-bold px-1 rounded-full">
                 {activeCount}
               </span>
             )}
