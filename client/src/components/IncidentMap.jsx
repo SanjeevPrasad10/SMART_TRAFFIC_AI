@@ -163,7 +163,11 @@ export default function IncidentMap({
                   {incident.imageUrl && (
                     <div className="w-full h-32 mb-2 rounded overflow-hidden bg-slate-900 border border-slate-800">
                       <img
-                        src={`http://localhost:5000${incident.imageUrl}`}
+                        src={
+                          incident.imageUrl.startsWith('blob:') || incident.imageUrl.startsWith('data:') || incident.imageUrl.startsWith('http')
+                            ? incident.imageUrl
+                            : `http://localhost:5000${incident.imageUrl}`
+                        }
                         alt={incident.title}
                         className="w-full h-full object-cover"
                         onError={(e) => { e.target.style.display = 'none'; }}
